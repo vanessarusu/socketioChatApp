@@ -1,0 +1,77 @@
+<!doctype html>
+<html>
+  <head>
+    <title>Socket.IO Chat</title>
+    <link rel="stylesheet" href="css/styles.css" />
+  </head>
+  <body>
+    <h1>Welcome to Chat!</h1>
+    <p class="signInPrompt">Before you chat, tell us your name!</p>
+    <p class="chatPrompt"></p>
+    <ul id="messages"></ul>
+    <form id="chatform" class="hidden">
+      <input id="mess" autocomplete="off" /><button id="sendbtn">Send</button>
+    </form>
+
+    <form id="userReg">
+       <input id="newUser" autocomplete="off" /><button id="newUserButton">New User</button>
+    </form>
+
+    <script src="https://cdn.socket.io/socket.io-1.4.4.js"></script>
+<script>
+(function(){
+  var socket = io();
+
+
+  var username = null;
+  
+
+  var form = document.querySelector('#chatform');
+  var list = document.querySelector('#messages');
+  var input = document.querySelector('#mess');
+  var signInPrompt = document.querySelector('.signInPrompt');
+  var chatPrompt = document.querySelector('.chatPrompt');
+
+  var userReg = document.querySelector('#userReg');
+  var newUser = document.querySelector('#newUser');
+  var newUserButton = document.querySelector('#newUserButton');
+
+
+
+function setUser(e) {
+  username = newUser.value;
+  e.preventDefault();
+  socket.emit('newUser', username);
+  chatPrompt.innerHTML="Hello, "+username+"!";
+  userReg.classList.add('hidden');
+  form.classList.remove('hidden');
+  signInPrompt.classList.add('hidden');
+
+}
+
+
+
+  function sendMsg(e) {
+    e.preventDefault(); 
+    socket.emit('chat message', input.value);
+    input.value = '';
+    return false;
+  };
+
+  socket.on('chat message', function(msg){
+    list.innerHTML += '<li>'+msg+'</li>';
+  });
+
+
+    socket.on('disconnect', function(msg){
+    list.innerHTML += '<li>'+msg+'</li>';
+  });
+
+form.addEventListener("submit", sendMsg, false);
+newUserButton.addEventListener('click', setUser, false);
+})();
+// userReg.addEventListener("submit", addUser, false);
+
+</script>
+  </body>
+</html>
